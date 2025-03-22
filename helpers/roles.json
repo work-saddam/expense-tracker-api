@@ -1,0 +1,27 @@
+{
+  "roles": [
+    {
+      "name": "admin",
+      "permission": [
+        "create_record",
+        "read_record",
+        "update_record",
+        "delete_record"
+      ]
+    },
+    {
+      "name": "manager",
+      "permission": [
+        "create_record",
+        "read_record",
+        "update_record"]
+    },
+    {
+        "name": "user",
+        "permission": [
+          "create_record",
+          "read_record"
+          ]  
+    }
+  ]
+}
