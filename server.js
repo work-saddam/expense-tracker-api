@@ -6,6 +6,8 @@ const path = require("path");
 require("dotenv").config();
 
 const expenseRoutes = require("./routes/expenseRoutes");
+const authRoutes = require("./routes/authRoutes")
+const uploadRoutes = require("./routes/uploadRoutes")
 
 // Connect database
 mongoose
@@ -26,6 +28,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/expenses", expenseRoutes);
+app.use("/files", uploadRoutes)
+app.use("/user", authRoutes)
 
 app.listen(3000, () => {
   console.log(`Server is running at http://localhost:3000`);
