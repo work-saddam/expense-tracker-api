@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <title>Expense List</title>
+  </head>
+
+  <body>
+    <h1>Expense List</h1>
+    <ul>
+      <% expenses.forEach(expense =>{ %>
+      <li>
+        <strong> <%= expense.name %> </strong> - $<%= expense.amount %> (Added on
+        <%= expense.date.toDateString() %>)
+      </li>
+      <% }) %>
+    </ul>
+  </body>
+</html>
