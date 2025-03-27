@@ -8,6 +8,7 @@
         "update_record",
         "delete_record",
         "generate_report",
+        "update_user",
         "delete_user"
       ]
     },
@@ -18,6 +19,7 @@
         "read_record",
         "update_record",
         "generate_report",
+        "update_user",
         "delete_user"
       ]
     },
