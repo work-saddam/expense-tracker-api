@@ -6,6 +6,7 @@ const {checkPermission} = require("../middleware/rbac.js")
 const authController = require("../controllers/authController.js")
 
 
+router.get("/",auth,checkPermission("get_users"), authController.getAllUser )
 router.post("/signup", authController.signupUser);
 router.post("/login", authController.loginUser);
 router.put("/:id", auth, checkPermission("update_user"), authController.updateUser)
