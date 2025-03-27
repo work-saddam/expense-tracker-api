@@ -6,7 +6,8 @@
         "create_record",
         "read_record",
         "update_record",
-        "delete_record"
+        "delete_record",
+        "generate_report"
       ]
     },
     {
@@ -14,7 +15,9 @@
       "permission": [
         "create_record",
         "read_record",
-        "update_record"]
+        "update_record",
+        "generate_report"
+      ]
     },
     {
         "name": "user",
