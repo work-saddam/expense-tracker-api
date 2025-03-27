@@ -2,33 +2,30 @@ const User = require("../models/user.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
+const validator = require("validator");
 
-
-function validateUser(userName, passsword) {
-    if (!userName || !passsword) {
-      return false;
-    } else {
-      if (passsword.length < 6) {
-        return false;
-      }
-    }
-    return true;
+function validateSignUpData(firstName, lastName, email, password) {
+  if (!firstName || !lastName) {
+    throw new Error("Name is not valid");
+  } else if (!validator.isEmail(email)) {
+    throw new Error("Email is not valid!");
+  } else if (!validator.isStrongPassword(password)) {
+    throw new Error("Please enter strong password");
   }
+}
 
 exports.signupUser = async (req, res) => {
   try {
-    const { userName, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
-    if (!validateUser(userName, password)) {
-      return res.send("User not valid");
-    }
+    validateSignUpData(firstName, lastName, email, password)
 
-    const existingUser = await User.findOne({ userName: userName });
+    const existingUser = await User.findOne({ email: email });
     if (existingUser) {
-      return res.status(400).json({ error: "Username is already taken" });
+      return res.status(400).json({ error: "Email is already register" });
     }
 
-    const user = new User({ userName, password });
+    const user = new User({ firstName, lastName, email, password });
     await user.save({});
     res.status(201).json({ message: "User signed up" });
   } catch (error) {
@@ -38,15 +35,18 @@ exports.signupUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   try {
-    const userName = req.body.userName;
-    const user = await User.findOne({ userName: userName });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json("email and password are required");
+    }
+    const user = await User.findOne({ email: email });
     if (!user) {
       return res.status(400).json({ error: "user not found" });
     }
 
     // Authenticate user
     const isPasswordValid = await bcrypt.compare(
-      req.body.password,
+      password,
       user.password
     );
     if (!isPasswordValid) {
@@ -55,7 +55,7 @@ exports.loginUser = async (req, res) => {
 
     // Authorisation
     const token = jwt.sign(
-      { userName: user.userName, role: user.role },
+      { email: user.email, role: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
