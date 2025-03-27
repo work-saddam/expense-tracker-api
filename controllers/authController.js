@@ -18,7 +18,7 @@ exports.signupUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    validateSignUpData(firstName, lastName, email, password)
+    validateSignUpData(firstName, lastName, email, password);
 
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
@@ -45,10 +45,7 @@ exports.loginUser = async (req, res) => {
     }
 
     // Authenticate user
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid password" });
     }
@@ -64,5 +61,21 @@ exports.loginUser = async (req, res) => {
     res.json({ token });
   } catch (error) {
     res.status(400).json(error.message);
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if(!user){
+        return res.status(404).json("user not found")
+    }
+    res.status(200).json({measege:"User deleted Successfully", user})
+  } catch (error) {
+    if (error.name === "CastError") {
+        //we can also write this to cath invalid object error
+        return res.status(400).json({ error: "Invalid User ID format." });
+      }
+      res.status(500).json({ error: error.message });
   }
 };
