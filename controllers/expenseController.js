@@ -1,12 +1,14 @@
 const Transaction = require("../models/expense");
 const mongoose = require("mongoose");
+const path = require("path")
+const fs = require("fs")
+const createObjectCsvWriter = require("csv-writer").createObjectCsvWriter
 
 exports.getAllExpenses = async (req, res) => {
   try {
     const expenses = await Transaction.find();
     // res.json(expenses);
-    res.render("expenses", { expenses });  //1st parameter:- views file name, 2nd:-Passing variable
-    
+    res.render("expenses", { expenses }); //1st parameter:- views file name, 2nd:-Passing variable
   } catch (error) {
     console.error("Error fetching expenses:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -79,6 +81,83 @@ exports.deleteExpense = async (req, res) => {
       //we can also write this to cath invalid object error
       return res.status(400).json({ error: "Invalid Expense ID format." });
     }
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//Filter Expense by date and category
+exports.filterExpenses = async (req, res) => {
+  try {
+    const { startDate, endDate, category } = req.query;
+
+    // Build the query object dynamically
+    const query = {};
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+    if (category) {
+      query.category = category;
+    }
+
+    const filteredExpenses = await Transaction.find(query);
+    res.status(200).json(filteredExpenses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Export all expenses as a CSV report
+exports.exportExpensesToCSV = async (req, res) => {
+  try {
+    const expenses = await Transaction.find();
+
+    if (!expenses || expenses.length === 0) {
+      return res.status(404).json({ error: "No expenses found to export" });
+    }
+
+    // Define the CSV file path
+    const exportsDir = path.join(__dirname, "../exports");
+    if (!fs.existsSync(exportsDir)) {
+      fs.mkdirSync(exportsDir);
+    }
+
+    // Define the CSV file path
+    const filePath = path.join(exportsDir, "expenses-report.csv");
+
+    // Create a CSV writer
+    const csvWriter = createObjectCsvWriter({
+      path: filePath,
+      header: [
+        { id: "_id", title: "ID" },
+        { id: "name", title: "Name" },
+        { id: "amount", title: "Amount" },
+        { id: "date", title: "Date" },
+        { id: "category", title: "Category" },
+      ],
+    });
+
+    // Write the data to the CSV file
+    await csvWriter.writeRecords(expenses);
+
+    // Send the file as a response
+    res.download(filePath, "expenses-report.csv", (err) => {
+      if (err) {
+        console.error("Error sending the file:", err);
+        res.status(500).json({ error: "Failed to export expenses" });
+      }
+
+      // Optionally, delete the file after sending it
+      fs.unlink(filePath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error("Error deleting the file:", unlinkErr);
+        }
+      });
+
+    });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
