@@ -31,7 +31,7 @@ app.get("/", (req, res) => {
 app.use("/expenses", expenseRoutes);
 app.use("/files", uploadRoutes)
 app.use("/user", authRoutes)
-app.use("/assign", assignRoleRoute)
+app.use("/assignRole", assignRoleRoute)
 
 app.listen(3000, () => {
   console.log(`Server is running at http://localhost:3000`);
