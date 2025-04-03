@@ -14,6 +14,6 @@ router.delete("/:id",auth,checkPermission("delete_record"), expenseController.de
 router.put("/:id",auth,checkPermission("update_record"), expenseController.updateExpense);
 
 router.get("/filter",auth, checkPermission("read_record"), expenseController.filterExpenses)
-router.get("/report",auth, expenseController.exportExpensesToCSV)
+router.get("/report",auth,checkPermission("generate_report"), expenseController.exportExpensesToCSV)
 
 module.exports = router;
